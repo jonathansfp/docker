@@ -1,0 +1,47 @@
+services:
+  postgre:
+    image: postgres:12.17
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: pg123
+      POSTGRES_USER: aula123
+      POSTGRES_DB: auladocker
+    volumes:
+      # Bind
+      # - ./postgre_vol:/var/lib/postgresql/data
+      # Gerenciado pelo docker
+      - postgre_docker_vol:/var/lib/postgresql/data
+    networks:
+      - aula_teste
+    #informa que esse container só pode ser subir após o postgre
+    dependes_on:
+      postgre
+
+  #aplicação exemplo 
+  kube_news:
+    image: kubedevio/kube_news:v1
+    ports: 
+      - 8080:8080
+    networks:
+      - aula_teste
+    environment:
+      DB_PASSWORD: pg123
+      DB_USER: aula123
+      DB_DATABASE: auladocker
+      DB_HOST: postgre
+    dependes_on:
+      - postgres
+volumes:
+  postgre_docker_vol:
+    name: postgre_exemplo_vol
+    #true para volumes criados externo ao docker compose
+    #name: postgre_exemplo_vol com mesmo nome do volume
+    #external: 
+
+
+networks:
+  aula_teste:
+    #name: rede_exemplo com mesmo nome do volume
+    #external: true
+    driver: bridge
